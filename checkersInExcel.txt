@@ -1,0 +1,579 @@
+Const topRow = 4
+Const bottomRow = 11
+Const rightCol = 6
+Const leftCol = 13
+Const kingSign = "K"
+Const pawnSign = "O"
+Sub newGame()
+
+    On Error GoTo endy
+    Application.ScreenUpdating = False
+    
+    With Cells
+        .Clear
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .WrapText = False
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .RowHeight = 30
+        .ColumnWidth = 4.5
+    End With
+    With Cells.Font
+        .Name = "Arial"
+        .Size = 11
+        .Strikethrough = False
+        .Superscript = False
+        .Subscript = False
+        .OutlineFont = False
+        .Shadow = False
+        .Underline = xlUnderlineStyleNone
+        .TintAndShade = 0
+        .ThemeFont = xlThemeFontMinor
+        .Bold = True
+    End With
+    
+    With Range(Cells(topRow - 1, rightCol - 1), Cells(bottomRow + 1, leftCol + 1)).Font
+        .Name = "Aharoni"
+        .Size = 24
+    End With
+    
+    With Range(Cells(topRow - 2, rightCol), Cells(topRow - 2, leftCol))
+        .MergeCells = True
+        .Value = "let's play Checkers!!"
+    End With
+    Cells(1, Columns.Count - 3).Value = Cells(1, 1).address
+    Cells(1, Columns.Count - 1).Value = "RED"
+    Cells(1, Columns.Count - 2).Value = "WHITE"
+    Cells(2, Columns.Count - 3).Value = "WHITE"
+    
+    With Union(Range(Cells(topRow - 1, rightCol - 1), Cells(bottomRow + 1, rightCol - 1)), _
+            Range(Cells(topRow - 1, rightCol - 1), Cells(topRow - 1, leftCol + 1)), _
+            Range(Cells(topRow - 1, leftCol + 1), Cells(bottomRow + 1, leftCol + 1)), _
+            Range(Cells(bottomRow + 1, rightCol - 1), Cells(bottomRow + 1, leftCol + 1))).Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorAccent6
+        .TintAndShade = 0.399975585192419
+        .PatternTintAndShade = 0
+    End With
+    
+    Dim index As Integer
+    Dim redRng, rng As Range
+    Dim whiteRng As Range
+    Set redRng = Cells(1, Columns.Count - 1)
+    Set whiteRng = Cells(1, Columns.Count - 2)
+    
+    Range("F4:M11").ClearContents
+    Set rng = Range("G4,I4,K4,M4,L5,K6,J5,I6,H5,G6,F5,F7,F9,G8,H7,I8,J7,K8,M6,L7,M8,L9,M10,L11,K10,J9,J11,I10,H9,G10,F11,H11")
+    With rng.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorLight1
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    Range("G4").FormulaR1C1 = pawnSign
+    Range("I4").FormulaR1C1 = pawnSign
+    Range("K4").FormulaR1C1 = pawnSign
+    Range("M4").FormulaR1C1 = pawnSign
+    Range("M6").FormulaR1C1 = pawnSign
+    Range("K6").FormulaR1C1 = pawnSign
+    Range("I6").FormulaR1C1 = pawnSign
+    Range("G6").FormulaR1C1 = pawnSign
+    Range("F5").FormulaR1C1 = pawnSign
+    Range("H5").FormulaR1C1 = pawnSign
+    Range("J5").FormulaR1C1 = pawnSign
+    Range("L5").FormulaR1C1 = pawnSign
+    Range("L9").FormulaR1C1 = pawnSign
+    Range("J9").FormulaR1C1 = pawnSign
+    Range("H9").FormulaR1C1 = pawnSign
+    Range("F9").FormulaR1C1 = pawnSign
+    Range("L11").FormulaR1C1 = pawnSign
+    Range("J11").FormulaR1C1 = pawnSign
+    Range("H11").FormulaR1C1 = pawnSign
+    Range("F11").FormulaR1C1 = pawnSign
+    Range("G10").FormulaR1C1 = pawnSign
+    Range("I10").FormulaR1C1 = pawnSign
+    Range("K10").FormulaR1C1 = pawnSign
+    Range("M10").FormulaR1C1 = pawnSign
+    With Range("F4:M6,E12:N12,E4:E11").Font
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+    End With
+    With Range("F9:M11,E3:N3,N4:N11").Font
+        .color = -16776961
+        .TintAndShade = 0
+    End With
+    
+    index = 1
+    For i = topRow To topRow + 2
+        For j = rightCol To leftCol
+            If Cells(i, j).Value <> "" Then
+                whiteRng.Offset(index, 0).Value = Cells(i, j).address
+                index = index + 1
+            End If
+        Next
+    Next
+    
+    index = 1
+    For i = bottomRow - 2 To bottomRow
+        For j = rightCol To leftCol
+            If Cells(i, j).Value <> "" Then
+                redRng.Offset(index, 0).Value = Cells(i, j).address
+                index = index + 1
+            End If
+        Next
+    Next
+    
+endy:
+    Application.ScreenUpdating = True
+    
+    Range("A1").Select
+End Sub
+Private Sub Worksheet_SelectionChange(ByVal target As Range)
+    Dim index As Integer
+    Dim emptyQ As Boolean
+    Dim selectionRng As Range
+    On Error GoTo endy
+    Application.ScreenUpdating = False
+    'Application.EnableEvents = False
+
+    Set rng = Cells(1, Columns.Count - 3)
+    ' If Not rng.Offset(1, 0).Value = Application.UserName And target.Address <> rng.Value And withinRange(target) Then
+'    If Not belongToUser(Range(rng.Value)) And target.Address <> rng.Value And withinRange(target) Then
+'        Range(rng.Value).Activate
+'        MsgBox "this is not your turn!!"
+'        Exit Sub
+'    Else
+    If Not withinRange(ActiveCell) Then
+        Exit Sub
+    ElseIf Selection.Count > 1 Then
+        MsgBox "choose one cell please..."
+        Exit Sub
+    End If
+        
+    emptyQ = Cells(1, Columns.Count).Value = ""
+    If isLegal(target) Then
+        If Not belongToUser(Range(rng.Value)) And target.address <> rng.Value And withinRange(target) Then
+            Range(rng.Value).Activate
+            MsgBox "this is not your turn!!"
+            Exit Sub
+        End If
+        Call updateDB(Range(rng.Value), target)
+        Call findPosibilities(target)
+    Else
+        Call findPosibilities(target)
+    End If
+    rng.Value = target.address
+endy:
+    Application.ScreenUpdating = True
+
+End Sub
+Private Sub updateDB(curr As Range, target As Range)
+
+    On Error GoTo endy
+    Application.ScreenUpdating = False
+    
+    Dim index As Integer
+    Dim redRng, whiteRng, deleteCell As Range
+    Set redRng = Cells(1, Columns.Count - 1)
+    Set whiteRng = Cells(1, Columns.Count - 2)
+    Set deleteCell = Cells(3, Columns.Count - 3)
+    index = 1
+    Call toggleUserTurn   ' at the moment, toggle after every turn even if there is more potential kills
+    While redRng.Offset(index, 0).Value <> ""
+        If redRng.Offset(index, 0).Value = curr.address Then
+            redRng.Offset(index, 0).Value = target.address
+            target.Value = curr.Value
+            curr.Copy
+            target.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+                SkipBlanks:=False, Transpose:=False
+            Application.CutCopyMode = False
+            curr.ClearContents
+            If target.Row = topRow Then target.Value = kingSign
+        End If
+        index = index + 1
+    Wend
+    index = 1
+    While whiteRng.Offset(index, 0).Value <> ""
+        If whiteRng.Offset(index, 0).Value = curr.address Then
+            whiteRng.Offset(index, 0).Value = target.address
+            target.Value = curr.Value
+            curr.Copy
+            target.PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, _
+                SkipBlanks:=False, Transpose:=False
+            Application.CutCopyMode = False
+            curr.ClearContents
+            If target.Row = bottomRow Then target.Value = kingSign
+        End If
+        index = index + 1
+    Wend
+    Call deleteMyCell(target) ' delete the appropriate instrument
+    
+endy:
+    Application.ScreenUpdating = True
+    
+End Sub
+Private Function isSameColor(curr As Range, target As Range) As Boolean
+    Dim index As Integer
+    Dim redRng As Range
+    Set redRng = Cells(1, Columns.Count - 1)
+    Dim whiteRng As Range
+    Set whiteRng = Cells(1, Columns.Count - 2)
+    isSameColor = False
+    index = 1
+    red1 = False
+    red2 = False
+    While redRng.Offset(index).Value <> "" And (Not red1 Or Not red2)
+        If Not red1 And redRng.Offset(index) = curr.address Then
+            red1 = True
+        End If
+        If Not red2 And redRng.Offset(index) = target.address Then
+            red2 = True
+        End If
+        index = index + 1
+    Wend
+    isSameColor = red1 And red2
+    index = 1
+    white1 = False
+    white2 = False
+    While whiteRng.Offset(index).Value <> "" And (Not white1 Or Not white2) And Not isSameColor
+        If Not white1 And whiteRng.Offset(index) = curr.address Then
+            white1 = True
+        End If
+        If Not white2 And whiteRng.Offset(index) = target.address Then
+            white2 = True
+        End If
+        index = index + 1
+    Wend
+    isSameColor = isSameColor Or (white1 And white2)
+End Function
+Private Function withinRange(cell As Range) As Boolean
+    withinRange = cell.Row >= topRow And cell.Row <= bottomRow And cell.Column >= rightCol And cell.Column <= leftCol
+End Function
+Private Function isLegal(target As Range) As Boolean '' checks if the target cell is in the posibilities that were found in "findPosibilities"
+    Dim rng As Range
+    Dim index As Integer
+    Set rng = Cells(1, Columns.Count)
+    isLegal = False
+    index = 0
+    While rng.Offset(index, 0).Value <> "" And Not isLegal
+        isLegal = rng.Offset(index, 0).Value = target.address
+        index = index + 1
+    Wend
+End Function
+Private Sub setColor()
+    Dim rng As Range
+    Dim index As Integer
+    Set rng = Cells(1, Columns.Count)
+    index = 0
+    While rng.Offset(index, 0).Value <> ""
+        With Range(rng.Offset(index, 0).Value).Interior
+            .Pattern = xlSolid
+            .PatternColorIndex = xlAutomatic
+            .ThemeColor = xlThemeColorLight2
+            .TintAndShade = 0.599993896298105
+            .PatternTintAndShade = 0
+        End With
+        index = index + 1
+    Wend
+End Sub
+Private Sub resetColor()
+    Dim rng As Range
+    Dim index As Integer
+    Set rng = Cells(1, Columns.Count)
+    index = 0
+    While rng.Offset(index, 0).Value <> ""
+        With Range(rng.Offset(index, 0).Value).Interior
+            .Pattern = xlSolid
+            .PatternColorIndex = xlAutomatic
+            .ThemeColor = xlThemeColorLight1
+            .TintAndShade = 0
+            .PatternTintAndShade = 0
+        End With
+        index = index + 1
+    Wend
+End Sub
+Private Sub deleteMyCell(target As Range)
+
+    On Error GoTo endy
+    Application.ScreenUpdating = False
+    
+    Dim deleted As Boolean
+    Dim rng As Range
+    Dim index As Integer
+    Set rng = Cells(1, Columns.Count)
+    index = 0
+    deleted = False
+    While rng.Offset(index, 0).Value <> ""
+        If target.address = rng.Offset(index, 0).Value And rng.Offset(index, -4).Value <> "" Then
+            Call stackDeleted(rng.Offset(index, -4))
+            Range(rng.Offset(index, -4)).ClearContents
+            myShit = rng.Offset(index, -4).Value
+        End If
+        index = index + 1
+    Wend
+    index = 1
+    While rng.Offset(index, -1).Value <> ""
+        If deleted Or myShit = rng.Offset(index, -1).Value Then
+            rng.Offset(index, -1).Value = rng.Offset(index + 1, -1).Value
+            deleted = True
+        End If
+        index = index + 1
+    Wend
+    index = 1
+    deleted = False
+    While rng.Offset(index, -2).Value <> ""
+        If deleted Or myShit = rng.Offset(index, -2).Value Then
+            rng.Offset(index, -2).Value = rng.Offset(index + 1, -2).Value
+            deleted = True
+        End If
+        index = index + 1
+    Wend
+    If rng.Offset(1, -1).Value = "" Then
+        MsgBox rng.Offset(0, -2).Value & " has won the game!!"
+        Range(Cells(topRow - 2, rightCol + 1), Cells(topRow - 2, leftCol - 1)) = "victory is " & rng.Offset(0, -2).Value & "'s !!"
+    ElseIf rng.Offset(1, -2).Value = "" Then
+        MsgBox rng.Offset(0, -1).Value & " has won the game!!"
+        Range(Cells(topRow - 2, rightCol + 1), Cells(topRow - 2, leftCol - 1)) = "victory is " & rng.Offset(0, -1).Value & "'s !!"
+    End If
+    
+endy:
+    Application.ScreenUpdating = True
+    
+End Sub
+Sub toggleUserTurn()
+    
+    If Cells(2, Columns.Count - 3).Value = Cells(1, Columns.Count - 1).Value Then
+        Cells(2, Columns.Count - 3).Value = Cells(1, Columns.Count - 2).Value
+    Else
+        Cells(2, Columns.Count - 3).Value = Cells(1, Columns.Count - 1).Value
+    End If
+    Range(Cells(topRow - 2, rightCol + 1), Cells(topRow - 2, leftCol - 1)) = "äúåø ùì " & Cells(2, Columns.Count - 3).Value
+End Sub
+Private Function belongToUser(target As Range) As Boolean
+    Dim rng As Range
+    Dim cell As Range
+    If Cells(2, Columns.Count - 3).Value = Cells(1, Columns.Count - 1).Value Then
+        Set rng = Range(Cells(2, Columns.Count - 1), Cells(Rows.Count, Columns.Count - 1).End(xlUp))
+    Else
+        Set rng = Range(Cells(2, Columns.Count - 2), Cells(Rows.Count, Columns.Count - 2).End(xlUp))
+    End If
+    belongToUser = False
+    For Each cell In rng
+        If target.address = cell.Value Then belongToUser = True
+    Next cell
+End Function
+'Function doStuff(mekademRow As Integer, mekademCol As Integer, ByVal x As Integer, ByVal direction As Integer, ByRef index As Integer, isPawn As Boolean, isKing As Boolean)
+'    If direction < 2 And target.Offset(mekademRow * x, mekademCol * x).Value = "" Then
+'        If withinRange(target.Offset(mekademRow * x, mekademCol * x)) And ((isPawn And (direction = 1 Or x = 1)) Or isKing) Then
+'            rng.Offset(index, 0).Value = target.Offset(mekademRow * x, mekademCol * x).Address
+'            If direction > 0 Then
+'                rng.Offset(index, -4).Value = Cells(3, Columns.Count - 3).Value
+'            End If
+'            index = index + 1
+'        End If
+'    Else
+'        If isSameColor(target, target.Offset(mekademRow * x, mekademCol * x)) Then
+'            direction = 10
+'        Else
+'            direction = direction + 1
+'            Cells(3, Columns.Count - 3).Value = target.Offset(mekademRow * x, mekademCol * x).Address
+'        End If
+'    End If
+'    doStuff = direction
+'End Function
+Private Sub findPosibilities(target As Range)
+
+    On Error GoTo endy
+    Application.ScreenUpdating = False
+    
+    Dim index, howFar, mekademRow, mekademCol, lu, ld, ru, rd As Integer
+    Dim rng As Range
+    Set rng = Cells(1, Columns.Count)
+    Call resetColor
+    Range(rng, rng.Offset(40, 0)).ClearContents
+    Cells(3, Columns.Count - 3).Value = "" ' this cell holds the address to delete ld (left and down)
+    Cells(4, Columns.Count - 3).Value = "" ' this cell holds the address to delete lu (left and up)
+    Cells(5, Columns.Count - 3).Value = "" ' this cell holds the address to delete ru (right and up)
+    Cells(6, Columns.Count - 3).Value = "" ' this cell holds the address to delete rd (right and down)
+    Range(rng.Offset(0, -4), rng.Offset(40, -4)).ClearContents
+    index = 0
+    lu = 0
+    ld = 0
+    ru = 0
+    rd = 0
+    Dim isEmpty, isKing, isPawn As Boolean
+    
+    If Not withinRange(target) Then Exit Sub
+    
+    isEmpty = target.Value = ""
+    isKing = target.Value = kingSign
+    isPawn = target.Value = pawnSign
+    If isEmpty Then Exit Sub
+    If isPawn Then
+        howFar = 2
+    ElseIf isKing Then
+        howFar = 8
+    End If
+    For x = 1 To howFar
+        ' left down
+        mekademCol = 1
+        mekademRow = 1
+        If ld < 2 And target.Offset(mekademRow * x, mekademCol * x).Value = "" Then
+            If withinRange(target.Offset(mekademRow * x, mekademCol * x)) And ((isPawn And (ld = 1 Or x = 1)) Or isKing) Then
+                ' pawn can advance only forward (eat backwards is okay. to disable this condition remove 'Or x=2')
+                If Not isRed(target.address) Or x = 2 Or Not isPawn Then
+                    rng.Offset(index, 0).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                    If ld > 0 Then
+                        rng.Offset(index, -4).Value = Cells(3, Columns.Count - 3).Value
+                    End If
+                    index = index + 1
+                End If
+            End If
+        Else
+            If isSameColor(target, target.Offset(mekademRow * x, mekademCol * x)) Then
+                ld = 10
+            Else
+                ld = ld + 1
+                Cells(3, Columns.Count - 3).Value = target.Offset(mekademRow * x, mekademCol * x).address
+            End If
+        End If
+        ' left up
+        mekademCol = 1
+        mekademRow = -1
+        If lu < 2 And (target.Row + mekademRow * x) > 0 Then
+            If target.Offset(mekademRow * x, mekademCol * x).Value = "" Then
+                If withinRange(target.Offset(mekademRow * x, mekademCol * x)) And ((isPawn And (lu = 1 Or x = 1)) Or isKing) Then
+                    ' pawn can advance only forward (eat backwards is okay. to disable this condition remove 'Or x=2')
+                    If Not isWhite(target.address) Or x = 2 Or Not isPawn Then
+                        rng.Offset(index).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                        If lu > 0 Then
+                            rng.Offset(index, -4).Value = Cells(4, Columns.Count - 3).Value
+                        End If
+                        index = index + 1
+                    End If
+                End If
+            Else
+                If isSameColor(target, target.Offset(mekademRow * x, mekademCol * x)) Then
+                    lu = 10
+                Else
+                    lu = lu + 1
+                    Cells(4, Columns.Count - 3).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                End If
+            End If
+        End If
+        ' right up
+        mekademCol = -1
+        mekademRow = -1
+        If ru < 2 And (target.Column + mekademCol * x) > 0 And (target.Row + mekademRow * x) > 0 Then
+            If target.Offset(mekademRow * x, mekademCol * x).Value = "" Then
+                If withinRange(target.Offset(mekademRow * x, mekademCol * x)) And ((isPawn And (ru = 1 Or x = 1)) Or isKing) Then
+                    ' pawn can advance only forward (eat backwards is okay. to disable this condition remove 'Or x=2')
+                    If Not isWhite(target.address) Or x = 2 Or Not isPawn Then
+                        rng.Offset(index).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                        If ru > 0 Then
+                            rng.Offset(index, -4).Value = Cells(5, Columns.Count - 3).Value
+                        End If
+                        index = index + 1
+                    End If
+                End If
+            Else
+                If isSameColor(target, target.Offset(mekademRow * x, mekademCol * x)) Then
+                    ru = 10
+                Else
+                    ru = ru + 1
+                    Cells(5, Columns.Count - 3).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                End If
+            End If
+        End If
+        ' right down
+        mekademCol = -1
+        mekademRow = 1
+        If rd < 2 And (target.Column + mekademCol * x) > 0 Then
+            If target.Offset(mekademRow * x, mekademCol * x).Value = "" Then
+                If withinRange(target.Offset(mekademRow * x, mekademCol * x)) And ((isPawn And (rd = 1 Or x = 1)) Or isKing) Then
+                    If Not isRed(target.address) Or x = 2 Or Not isPawn Then ' pawn can advance only forward (eat backwards is okay. to disable this condition remove 'Or x=2')
+                        rng.Offset(index).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                        If rd > 0 Then
+                            rng.Offset(index, -4).Value = Cells(6, Columns.Count - 3).Value
+                        End If
+                        index = index + 1
+                    End If
+                End If
+            Else
+                If isSameColor(target, target.Offset(mekademRow * x, mekademCol * x)) Then
+                    rd = 10
+                Else
+                    rd = rd + 1
+                    Cells(6, Columns.Count - 3).Value = target.Offset(mekademRow * x, mekademCol * x).address
+                End If
+            End If
+        End If
+    Next
+    Call setColor
+
+endy:
+    Application.ScreenUpdating = True
+
+End Sub
+Sub stackDeleted(address As String)
+    Dim index As Integer
+    Dim delRed, cell As Range
+    Dim delWhite As Range
+    Set redRng = Cells(1, Columns.Count - 1)
+    Set delRed = Union(Range(Cells(topRow - 1, rightCol - 1), Cells(topRow - 1, leftCol + 1)), _
+            Range(Cells(topRow - 1, leftCol + 1), Cells(bottomRow + 1, leftCol + 1)))
+    Set delWhite = Union(Range(Cells(bottomRow + 1, leftCol + 1), Cells(bottomRow + 1, rightCol - 1)), _
+        Range(Cells(bottomRow + 1, rightCol - 1), Cells(topRow - 1, rightCol - 1)))
+    If Range(address).Value <> "" Then
+        If isRed(address) Then
+            For Each cell In delRed
+                If cell.Value = "" Then
+                    cell.Value = Range(address).Value
+                    Exit For
+                End If
+            Next cell
+        ElseIf isWhite(address) Then
+            For Each cell In delWhite
+                If cell.Value = "" Then
+                    cell.Value = Range(address).Value
+                    Exit For
+                End If
+            Next cell
+        Else
+            Call newGame
+            MsgBox "error found. restarted game..."
+        End If
+    End If
+End Sub
+Private Function isRed(address As String) As Boolean
+    isRed = False
+    Dim index As Integer
+    Dim redRng, cell As Range
+    Set redRng = Cells(1, Columns.Count - 1)
+    index = 1
+    While Not isRed And redRng.Offset(index, 0).Value <> ""
+        If redRng.Offset(index, 0).Value = address Then
+            isRed = True
+        End If
+        index = index + 1
+    Wend
+End Function
+Private Function isWhite(address As String) As Boolean
+    isWhite = False
+    Dim index As Integer
+    Dim cell, whiteRng As Range
+    Set whiteRng = Cells(1, Columns.Count - 2)
+    index = 1
+    While Not isWhite And whiteRng.Offset(index, 0).Value <> ""
+        If whiteRng.Offset(index, 0).Value = address Then
+            isWhite = True
+        End If
+        index = index + 1
+    Wend
+End Function
