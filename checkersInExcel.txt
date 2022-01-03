@@ -353,7 +353,7 @@ Sub toggleUserTurn()
     Else
         Cells(2, Columns.Count - 3).Value = Cells(1, Columns.Count - 1).Value
     End If
-    Range(Cells(topRow - 2, rightCol + 1), Cells(topRow - 2, leftCol - 1)) = "äúåø ùì " & Cells(2, Columns.Count - 3).Value
+    Range(Cells(topRow - 2, rightCol), Cells(topRow - 2, leftCol)).Value = Cells(2, Columns.Count - 3).Value & "'s turn!"
 End Sub
 Private Function belongToUser(target As Range) As Boolean
     Dim rng As Range
